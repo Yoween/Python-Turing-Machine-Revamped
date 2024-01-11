@@ -7,6 +7,9 @@ class MyFrame(wx.Frame):
         
         self.SetIcon(wx.Icon('icon.ico', wx.BITMAP_TYPE_ICO))
         
+        
+        self.circle_list_size = 7
+        
 
         splitter = wx.SplitterWindow(self, -1)
         splitter.SetMinimumPaneSize(20)
@@ -18,7 +21,7 @@ class MyFrame(wx.Frame):
 
         # setup self.listctrl columns
         for i in range(5):
-            col = self.listctrl.AppendTextColumn(f'col {i}')
+            self.listctrl.AppendTextColumn(f'col {i}')
 
         # Bind the EVT_SIZE event to a handler
         self.listctrl.Bind(wx.EVT_SIZE, self.OnSize)
@@ -39,20 +42,31 @@ class MyFrame(wx.Frame):
         self.panel2 = wx.Panel(splitter, -1)
         self.panel2.SetBackgroundColour(wx.YELLOW)
 
-        self.circle_colors = ['RED'] * 10
+        self.circle_colors = ['WHITE'] * self.circle_list_size
 
-        self.panel2.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.panel2.Bind(wx.EVT_PAINT, self.InitialDrawCircles)
 
         # Create a vertical box sizer
         sizer = wx.BoxSizer(wx.VERTICAL)
-
-        self.change_color_button = wx.Button(self.panel2, label='Change Circle Color')
-        self.change_color_button.Bind(wx.EVT_BUTTON, self.OnButtonClick)
-        sizer.Add(self.change_color_button)  # Add the button to the sizer
+        self.clear_all_button = wx.Button(self.panel2, label='Clear')
+        self.clear_all_button.Bind(wx.EVT_BUTTON, self.ClearPaint)
+        sizer.Add(self.clear_all_button)  # Add the button to the sizer
+        
+        self.set_blank_button = wx.Button(self.panel2, label='b')
+        self.set_blank_button.Bind(wx.EVT_BUTTON, self.SetColourBlank)
+        sizer.Add(self.set_blank_button)  # Add the button to the sizer
+        
+        self.set_zero_button = wx.Button(self.panel2, label='0')
+        self.set_zero_button.Bind(wx.EVT_BUTTON, self.SetColourZero)
+        sizer.Add(self.set_zero_button)  # Add the button to the sizer
+        
+        self.set_one_button = wx.Button(self.panel2, label='1')
+        self.set_one_button.Bind(wx.EVT_BUTTON, self.SetColourOne)
+        sizer.Add(self.set_one_button)  # Add the button to the sizer
 
         # Variables to store the selected circle and color
         self.selected_circle = None
-        self.new_color = 'BLUE'
+        self.new_color = ""
 
         self.move_right_button = wx.Button(self.panel2, label='Right')
         self.move_right_button.Bind(wx.EVT_BUTTON, self.MoveRight)
@@ -76,29 +90,26 @@ class MyFrame(wx.Frame):
             self.listctrl.GetColumn(i).SetWidth(int(col_width))
         event.Skip()  # Skip the event
 
-    def OnButtonClick(self, event):
-    # Prompt the user to enter the index of the circle
-        dlg = wx.TextEntryDialog(self, 'Enter the index of the circle to change:')
-        if dlg.ShowModal() == wx.ID_OK:
-            # Update the color of the selected circle
-            self.selected_circle = int(dlg.GetValue())
-            self.circle_colors[self.selected_circle] = self.new_color
-            # Force a repaint of the panel
-            self.panel2.Refresh()
-        dlg.Destroy()
+    def PaintCircle(self, event):
+        # Update the color of the selected circle
+        len_circle_colors = len(self.circle_colors)
+        self.selected_circle = len_circle_colors // 2
+        self.circle_colors[self.selected_circle] = self.new_color
+        # Force a repaint of the panel
+        self.panel2.Refresh()
 
-    def OnPaint(self, event):
+    def InitialDrawCircles(self, event):
         # Create a device context
         dc = wx.PaintDC(event.GetEventObject())
 
         # Draw some small circles
-        for i in range(10):
+        for i in range(self.circle_list_size):
             # Set the brush and pen
             dc.SetBrush(wx.Brush(self.circle_colors[i]))  # Use the color from the list
             dc.SetPen(wx.Pen('BLACK'))  # Black outline
 
-            x = i * 50  # X position
-            y = i * 50  # Y position
+            x = i * 50 + 100  # X position
+            y = i * 50 + 100 # Y position
             radius = 20  # Radius
             dc.DrawCircle(x, y, radius)
             
@@ -114,6 +125,22 @@ class MyFrame(wx.Frame):
         self.circle_colors = self.circle_colors[1:] + [self.circle_colors[0]]
 
         # Force a repaint of the panel
+        self.panel2.Refresh()
+        
+    def SetColourBlank(self, event):
+        self.new_color = 'WHITE'
+        self.PaintCircle(event)
+        
+    def SetColourZero(self, event):
+        self.new_color = 'RED'
+        self.PaintCircle(event)
+    
+    def SetColourOne(self, event):
+        self.new_color = 'BLUE'
+        self.PaintCircle(event)
+        
+    def ClearPaint(self, event):
+        self.circle_colors = ['WHITE'] * self.circle_list_size
         self.panel2.Refresh()
 
 
