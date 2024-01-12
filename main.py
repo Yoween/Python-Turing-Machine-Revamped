@@ -1,15 +1,16 @@
 import wx
 from wx import dataview as dv
-from Tape import Tape
 
 class MyFrame(wx.Frame):
-    def __init__(self, parent, id, title):
+    def __init__(self, parent, id, title, tape_size):
         wx.Frame.__init__(self, None, -1, title, size=(1280, 720))
         
         self.SetIcon(wx.Icon('icon.ico', wx.BITMAP_TYPE_ICO))
         
-        
-        self.circle_list_size = 7
+        self.color_map = {'b': 'WHITE', '0': 'RED', '1': 'BLUE'}
+        self.InitTape(tape_size)
+        self.len_tape_list = tape_size
+        self.selected_circle = self.len_tape_list // 2
         
 
         splitter = wx.SplitterWindow(self, -1)
@@ -36,14 +37,9 @@ class MyFrame(wx.Frame):
         
         for i in range(50):
             self.listctrl.AppendItem([f'row {i}', f'row {i}', f'row {i}', f'row {i}', f'row {i}'])
-
-        
-        
         
         self.panel2 = wx.Panel(splitter, -1)
         self.panel2.SetBackgroundColour(wx.Colour(128, 128, 255))
-
-        self.circle_colors = ['WHITE'] * self.circle_list_size
 
         self.panel2.Bind(wx.EVT_PAINT, self.InitialDrawCircles)
 
@@ -54,20 +50,17 @@ class MyFrame(wx.Frame):
         sizer.Add(self.clear_all_button)  # Add the button to the sizer
         
         self.set_blank_button = wx.Button(self.panel2, label='b')
-        self.set_blank_button.Bind(wx.EVT_BUTTON, self.SetColourBlank)
+        self.set_blank_button.Bind(wx.EVT_BUTTON, self.SetColor(color='b'))
         sizer.Add(self.set_blank_button)  # Add the button to the sizer
         
         self.set_zero_button = wx.Button(self.panel2, label='0')
-        self.set_zero_button.Bind(wx.EVT_BUTTON, self.SetColourZero)
+        self.set_zero_button.Bind(wx.EVT_BUTTON, self.SetColor(color='0'))
         sizer.Add(self.set_zero_button)  # Add the button to the sizer
         
         self.set_one_button = wx.Button(self.panel2, label='1')
-        self.set_one_button.Bind(wx.EVT_BUTTON, self.SetColourOne)
+        self.set_one_button.Bind(wx.EVT_BUTTON, self.SetColor(color='1'))
         sizer.Add(self.set_one_button)  # Add the button to the sizer
 
-        # Variables to store the selected circle and color
-        self.selected_circle = None
-        self.new_color = ""
 
         self.move_right_button = wx.Button(self.panel2, label='Right')
         self.move_right_button.Bind(wx.EVT_BUTTON, self.MoveRight)
@@ -91,66 +84,49 @@ class MyFrame(wx.Frame):
             self.listctrl.GetColumn(i).SetWidth(int(col_width))
         event.Skip()  # Skip the event
 
-    def PaintCircle(self, event):
-        # Update the color of the selected circle
-        len_circle_colors = len(self.circle_colors)
-        self.selected_circle = len_circle_colors // 2
-        self.circle_colors[self.selected_circle] = self.new_color
-        # Force a repaint of the panel
-        self.panel2.Refresh()
-
     def InitialDrawCircles(self, event):
-        # Create a device context
         dc = wx.PaintDC(event.GetEventObject())
-
-        # Draw some small circles
-        for i in range(self.circle_list_size):
-            # Set the brush and pen
-            dc.SetBrush(wx.Brush(self.circle_colors[i]))  # Use the color from the list
-            dc.SetPen(wx.Pen('BLACK'))  # Black outline
-
-            x = i * 50 + 100  # X position
-            y = i * 50 + 100 # Y position
-            radius = 20  # Radius
+        for i in range(self.len_tape_list):
+            value = self.tape_list[i]
+            color = self.color_map[value]
+            dc.SetBrush(wx.Brush(color))
+            dc.SetPen(wx.Pen('BLACK'))
+            x = i * 50 + 100
+            y = i * 50 + 100
+            radius = 20
             dc.DrawCircle(x, y, radius)
-            
-    def MoveRight(self, event):
-        # Shift the colors to the right
-        self.circle_colors = [self.circle_colors[-1]] + self.circle_colors[:-1]
-
-        # Force a repaint of the panel
+        
+    def SetColor(self, color, *args):
+        self.tape_list[self.selected_circle] = color
         self.panel2.Refresh()
-        
-    def MoveLeft(self, event):
-        # Shift the colors to the left
-        self.circle_colors = self.circle_colors[1:] + [self.circle_colors[0]]
-
-        # Force a repaint of the panel
-        self.panel2.Refresh()
-        
-    def SetColourBlank(self, event):
-        self.new_color = 'WHITE'
-        self.PaintCircle(event)
-        
-    def SetColourZero(self, event):
-        self.new_color = 'RED'
-        self.PaintCircle(event)
-    
-    def SetColourOne(self, event):
-        self.new_color = 'BLUE'
-        self.PaintCircle(event)
         
     def ClearPaint(self, event):
-        self.circle_colors = ['WHITE'] * self.circle_list_size
+        self.InitTape()
         self.panel2.Refresh()
+
+    def InitTape(self, size):
+        self.tape_list = ["b"] * size
+
+    def MoveRight(self, event):
+        # Shift the colors to the right
+        self.tape_list = [self.tape_list[-1]] + self.tape_list[:-1]
+
+        # Force a repaint of the panel
+        self.panel2.Refresh()
+    
+    def MoveLeft(self, event):
+        # Shift the colors to the left
+        self.tape_list = self.tape_list[1:] + [self.tape_list[0]]
+    
+    # Force a repaint of the panel
+        self.panel2.Refresh()
+        
+
 
 
 class MyApp(wx.App):
     def OnInit(self):
-        tape = Tape()
-        self.tape_list = tape.init_list(5)
-        print(self.tape_list)
-        frame = MyFrame(None, -1, "Python Turing Machine Revamped")
+        frame = MyFrame(None, -1, "Python Turing Machine Revamped", 15)
         frame.Show(True)
         self.SetTopWindow(frame)
         return True
