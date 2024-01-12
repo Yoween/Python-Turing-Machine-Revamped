@@ -1,5 +1,6 @@
 import wx
 from wx import dataview as dv
+from Tape import Tape
 
 class MyFrame(wx.Frame):
     def __init__(self, parent, id, title):
@@ -146,6 +147,9 @@ class MyFrame(wx.Frame):
 
 class MyApp(wx.App):
     def OnInit(self):
+        tape = Tape()
+        self.tape_list = tape.init_list(5)
+        print(self.tape_list)
         frame = MyFrame(None, -1, "Python Turing Machine Revamped")
         frame.Show(True)
         self.SetTopWindow(frame)
