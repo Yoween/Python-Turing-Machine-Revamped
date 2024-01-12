@@ -1,4 +1,5 @@
 import wx
+from math import sqrt
 from wx import dataview as dv
 
 class MyFrame(wx.Frame):
@@ -44,34 +45,40 @@ class MyFrame(wx.Frame):
         self.panel2.Bind(wx.EVT_PAINT, self.InitialDrawCircles)
 
         # Create a vertical box sizer
-        sizer = wx.BoxSizer(wx.VERTICAL)
+        box_sizer = wx.BoxSizer(wx.VERTICAL)
+        grid_sizer = wx.GridSizer(1, 6, 5, 5)
+        box_sizer.AddStretchSpacer()
+        
         self.clear_all_button = wx.Button(self.panel2, label='Clear')
         self.clear_all_button.Bind(wx.EVT_BUTTON, self.ClearPaint)
-        sizer.Add(self.clear_all_button)  # Add the button to the sizer
+        grid_sizer.Add(self.clear_all_button)  # Add the button to the sizer
         
         self.set_blank_button = wx.Button(self.panel2, label='b')
         self.set_blank_button.Bind(wx.EVT_BUTTON, self.SetColor(color='b'))
-        sizer.Add(self.set_blank_button)  # Add the button to the sizer
+        grid_sizer.Add(self.set_blank_button)  # Add the button to the sizer
         
         self.set_zero_button = wx.Button(self.panel2, label='0')
         self.set_zero_button.Bind(wx.EVT_BUTTON, self.SetColor(color='0'))
-        sizer.Add(self.set_zero_button)  # Add the button to the sizer
+        grid_sizer.Add(self.set_zero_button)  # Add the button to the sizer
         
         self.set_one_button = wx.Button(self.panel2, label='1')
         self.set_one_button.Bind(wx.EVT_BUTTON, self.SetColor(color='1'))
-        sizer.Add(self.set_one_button)  # Add the button to the sizer
+        grid_sizer.Add(self.set_one_button)  # Add the button to the sizer
 
 
         self.move_right_button = wx.Button(self.panel2, label='Right')
         self.move_right_button.Bind(wx.EVT_BUTTON, self.MoveRight)
-        sizer.Add(self.move_right_button)  # Add the button to the sizer
+        grid_sizer.Add(self.move_right_button)  # Add the button to the sizer
         
         self.move_left_button = wx.Button(self.panel2, label='Left')
         self.move_left_button.Bind(wx.EVT_BUTTON, self.MoveLeft)
-        sizer.Add(self.move_left_button)  # Add the button to the sizer
+        grid_sizer.Add(self.move_left_button)  # Add the button to the sizer
 
+        box_sizer.Add(grid_sizer, 0, wx.ALIGN_CENTER)
+        box_sizer.AddStretchSpacer()
+        
         # Set the sizer on the panel
-        self.panel2.SetSizer(sizer)
+        self.panel2.SetSizer(box_sizer)
 
         splitter.SplitVertically(panel1, self.panel2)
         splitter.SetSashPosition(self.GetSize().width // 3)
@@ -86,16 +93,20 @@ class MyFrame(wx.Frame):
 
     def InitialDrawCircles(self, event):
         dc = wx.PaintDC(event.GetEventObject())
-        for i in range(self.len_tape_list):
+        for i in range(25):
             value = self.tape_list[i]
             color = self.color_map[value]
             dc.SetBrush(wx.Brush(color))
             dc.SetPen(wx.Pen('BLACK'))
-            x = i * 50 + 100
-            y = i * 50 + 100
-            radius = 20
-            dc.DrawCircle(x, y, radius)
-        
+            r=self.panel2.GetSize()[1]
+            x = i * (r//25)
+            
+            print(self.panel2.GetSize())
+            y = -2*sqrt(((r/2)**2)-(x**2))
+            
+            radius = 10
+            dc.DrawCircle(int(x), 500, radius)
+
     def SetColor(self, color, *args):
         self.tape_list[self.selected_circle] = color
         self.panel2.Refresh()
@@ -126,7 +137,7 @@ class MyFrame(wx.Frame):
 
 class MyApp(wx.App):
     def OnInit(self):
-        frame = MyFrame(None, -1, "Python Turing Machine Revamped", 15)
+        frame = MyFrame(None, -1, "Python Turing Machine Revamped", 25)
         frame.Show(True)
         self.SetTopWindow(frame)
         return True
