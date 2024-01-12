@@ -41,7 +41,7 @@ class MyFrame(wx.Frame):
         
         
         self.panel2 = wx.Panel(splitter, -1)
-        self.panel2.SetBackgroundColour(wx.YELLOW)
+        self.panel2.SetBackgroundColour(wx.Colour(128, 128, 255))
 
         self.circle_colors = ['WHITE'] * self.circle_list_size
 
