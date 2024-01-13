@@ -93,19 +93,24 @@ class MyFrame(wx.Frame):
 
     def InitialDrawCircles(self, event):
         dc = wx.PaintDC(event.GetEventObject())
-        for i in range(25):
+        r = self.panel2.GetSize()[0]
+        h= self.panel2.GetSize()[1]
+        center=r//2
+        radius = 10
+        dc.DrawCircle(int(center), int(2*r*sqrt(1-(((0)/(r/1.65)))**(2))-348*h/240), radius)
+        for i in range(1, 13):
             value = self.tape_list[i]
             color = self.color_map[value]
             dc.SetBrush(wx.Brush(color))
             dc.SetPen(wx.Pen('BLACK'))
-            r=self.panel2.GetSize()[1]
-            x = i * (r//25)
-            
-            print(self.panel2.GetSize())
-            y = -2*sqrt(((r/2)**2)-(x**2))
-            
-            radius = 10
-            dc.DrawCircle(int(x), 500, radius)
+
+
+
+            x = i * (r // 25)
+            y = 2*r*sqrt(1-(((x)/(r/1.65)))**(2))-348*h/240
+
+            dc.DrawCircle(int(center+x), int(y), radius)
+            dc.DrawCircle(int(center-x), int(y), radius)
 
     def SetColor(self, color, *args):
         self.tape_list[self.selected_circle] = color
