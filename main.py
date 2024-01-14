@@ -54,15 +54,15 @@ class MyFrame(wx.Frame):
         grid_sizer.Add(self.clear_all_button)  # Add the button to the sizer
         
         self.set_blank_button = wx.Button(self.panel2, label='b')
-        self.set_blank_button.Bind(wx.EVT_BUTTON, self.SetColor(color='b'))
+        self.set_blank_button.Bind(wx.EVT_BUTTON,  lambda x: [self.SetColor(color='b')])
         grid_sizer.Add(self.set_blank_button)  # Add the button to the sizer
         
         self.set_zero_button = wx.Button(self.panel2, label='0')
-        self.set_zero_button.Bind(wx.EVT_BUTTON, self.SetColor(color='0'))
+        self.set_zero_button.Bind(wx.EVT_BUTTON,  lambda x: [self.SetColor(color='0')])
         grid_sizer.Add(self.set_zero_button)  # Add the button to the sizer
         
         self.set_one_button = wx.Button(self.panel2, label='1')
-        self.set_one_button.Bind(wx.EVT_BUTTON, self.SetColor(color='1'))
+        self.set_one_button.Bind(wx.EVT_BUTTON, lambda x: [self.SetColor(color='1')])
         grid_sizer.Add(self.set_one_button)  # Add the button to the sizer
 
 
@@ -110,14 +110,15 @@ class MyFrame(wx.Frame):
             y = 2*r*sqrt(1-(((x)/(r/1.65)))**(2))-348*h/240
 
             dc.DrawCircle(int(center+x), int(y), radius)
-            dc.DrawCircle(int(center-x), int(y), radius)
 
     def SetColor(self, color, *args):
+        print(color)
         self.tape_list[self.selected_circle] = color
         self.panel2.Refresh()
         
     def ClearPaint(self, event):
-        self.InitTape()
+        for i in range(self.len_tape_list):
+            self.tape_list[i] = 'b'
         self.panel2.Refresh()
 
     def InitTape(self, size):
