@@ -5,7 +5,7 @@ from wx import dataview as dv
 class MyFrame(wx.Frame):
     def __init__(self, parent, id, title, tape_size):
         wx.Frame.__init__(self, None, -1, title, size=(1280, 720))
-        
+        self.tape_size=tape_size
         self.SetIcon(wx.Icon('icon.ico', wx.BITMAP_TYPE_ICO))
         
         self.color_map = {'b': 'WHITE', '0': 'RED', '1': 'BLUE'}
@@ -123,18 +123,27 @@ class MyFrame(wx.Frame):
 
     def InitTape(self, size):
         self.tape_list = ["b"] * size
+        self.position= size//2
 
     def MoveRight(self, event):
         # Shift the colors to the right
-        self.tape_list = [self.tape_list[-1]] + self.tape_list[:-1]
+        if self.position >= self.tape_size-12:
+            manquant= self.tape_size - self.position
+            self.tape_list= self.tape_list[1:-1] + ["b"]*manquant
+        self.position += 1
 
         # Force a repaint of the panel
         self.panel2.Refresh()
     
     def MoveLeft(self, event):
         # Shift the colors to the left
-        self.tape_list = self.tape_list[1:] + [self.tape_list[0]]
-    
+        if self.position <= 12:
+            manquant = 13 - self.position
+            self.tape_list = ["b"] * manquant + self.tape_list[1:-1]
+            self.position += manquant
+            self.tape_size += manquant
+        self.position -= 1
+
     # Force a repaint of the panel
         self.panel2.Refresh()
         
