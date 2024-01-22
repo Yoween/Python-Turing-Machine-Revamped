@@ -102,7 +102,7 @@ class MyFrame(wx.Frame):
 
         panel2_width = self.panel2.GetSize()[0]
         panel2_height = self.panel2.GetSize()[1]
-        radius = 10
+        radius = int(panel2_width/80)
 
         for i in range(25):
             value = self.tape_list[self.position-12+i]
@@ -111,11 +111,10 @@ class MyFrame(wx.Frame):
             dc.SetBrush(wx.Brush(color))  # Set the color of the circle
             dc.SetPen(wx.Pen('BLACK'))  # Set the color of the border
             
-            x = i * panel2_width / 26 + i * (panel2_width/ (26 * 25))
-            y = 100
+            x = i * panel2_width / 26 + ((i+1) * (panel2_width/ (26*25))) + radius*1.5
+            y =  i * panel2_height / 26 + ((i+1) * (panel2_height/ (26*25))) + radius*1.5
 
             dc.DrawCircle(int(x), int(y), radius)
-        
 
     def SetColor(self, color, *args):
         print(color)
@@ -142,7 +141,6 @@ class MyFrame(wx.Frame):
             self.tape_size += 1
 
         self.ResizeDrawCircles()
-            
 
     def MoveRight(self, event):
         self.position -= 1
